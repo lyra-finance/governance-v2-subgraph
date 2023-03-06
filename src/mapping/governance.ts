@@ -8,8 +8,8 @@ import {
   NA,
 } from '../utils/constants';
 import { Proposal, Vote, Executor } from '../../generated/schema';
-import { IExecutor } from '../../generated/AaveGovernanceV2/IExecutor';
-import { GovernanceStrategy } from '../../generated/AaveGovernanceV2/GovernanceStrategy';
+import { IExecutor } from '../../generated/LyraGovernanceV2/IExecutor';
+import { GovernanceStrategy } from '../../generated/LyraGovernanceV2/GovernanceStrategy';
 import {
   ProposalCreated,
   VoteEmitted,
@@ -18,7 +18,7 @@ import {
   ProposalCanceled,
   ExecutorAuthorized,
   ExecutorUnauthorized,
-} from '../../generated/AaveGovernanceV2/AaveGovernanceV2';
+} from '../../generated/LyraGovernanceV2/LyraGovernanceV2';
 import { getOrInitProposal, getOrInitDelegate } from '../helpers/initializers';
 
 function getProposal(proposalId: string, fn: string): Proposal | null {

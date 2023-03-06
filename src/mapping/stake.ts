@@ -6,11 +6,10 @@ import {
   ZERO_ADDRESS,
   VOTING_CONSTANT,
   PROPOSITION_CONSTANT,
-  STKAAVE_CONSTANT,
 } from '../utils/constants';
 import { Delegate, Delegation } from '../../generated/schema';
 import { toDecimal } from '../utils/converters';
-import { DelegateChanged, Transfer } from '../../generated/StakedTokenV3/StakedTokenV3';
+import { DelegateChanged, Transfer } from '../../generated/stkLyra/stkLyra';
 
 enum PowerType {
   Voting,
@@ -24,23 +23,15 @@ function retotal(
   powerType: PowerType = PowerType.Both
 ): void {
   if (powerType === PowerType.Voting || powerType === PowerType.Both) {
-    delegate.stkAaveTotalVotingPowerRaw = delegate.stkAaveBalanceRaw
-      .plus(delegate.stkAaveDelegatedInVotingPowerRaw)
-      .minus(delegate.stkAaveDelegatedOutVotingPowerRaw);
-    delegate.stkAaveTotalVotingPower = toDecimal(delegate.stkAaveTotalVotingPowerRaw);
-    delegate.totalVotingPowerRaw = delegate.stkAaveTotalVotingPowerRaw.plus(
-      delegate.aaveTotalVotingPowerRaw
-    );
+    delegate.totalVotingPowerRaw = delegate.balanceRaw
+      .plus(delegate.delegatedInVotingPowerRaw)
+      .minus(delegate.delegatedOutVotingPowerRaw);
     delegate.totalVotingPower = toDecimal(delegate.totalVotingPowerRaw);
   }
   if (powerType === PowerType.Proposition || powerType === PowerType.Both) {
-    delegate.stkAaveTotalPropositionPowerRaw = delegate.stkAaveBalanceRaw
-      .plus(delegate.stkAaveDelegatedInPropositionPowerRaw)
-      .minus(delegate.stkAaveDelegatedOutPropositionPowerRaw);
-    delegate.stkAaveTotalPropositionPower = toDecimal(delegate.stkAaveTotalPropositionPowerRaw);
-    delegate.totalPropositionPowerRaw = delegate.stkAaveTotalPropositionPowerRaw.plus(
-      delegate.aaveTotalPropositionPowerRaw
-    );
+    delegate.totalPropositionPowerRaw = delegate.balanceRaw
+      .plus(delegate.delegatedInPropositionPowerRaw)
+      .minus(delegate.delegatedOutPropositionPowerRaw);
     delegate.totalPropositionPower = toDecimal(delegate.totalPropositionPowerRaw);
   }
   delegate.lastUpdateTimestamp = timestamp.toI32();
@@ -54,47 +45,47 @@ export function handleTransfer(event: Transfer): void {
   // fromHolder
   if (fromAddress != ZERO_ADDRESS) {
     let fromHolder = getOrInitDelegate(fromAddress);
-    fromHolder.stkAaveBalanceRaw = fromHolder.stkAaveBalanceRaw.minus(event.params.value);
-    fromHolder.stkAaveBalance = toDecimal(fromHolder.stkAaveBalanceRaw);
+    fromHolder.balanceRaw = fromHolder.balanceRaw.minus(event.params.value);
+    fromHolder.balance = toDecimal(fromHolder.balanceRaw);
 
-    if (fromHolder.stkAaveBalanceRaw < BIGINT_ZERO) {
+    if (fromHolder.balanceRaw < BIGINT_ZERO) {
       log.error('Negative balance on holder {} with balance {}', [
         fromHolder.id,
-        fromHolder.stkAaveBalanceRaw.toString(),
+        fromHolder.balanceRaw.toString(),
       ]);
     }
 
-    if (fromHolder.stkAaveVotingDelegate != fromHolder.id) {
-      let votingDelegate = getOrInitDelegate(fromHolder.stkAaveVotingDelegate);
-      votingDelegate.stkAaveDelegatedInVotingPowerRaw = votingDelegate.stkAaveDelegatedInVotingPowerRaw.minus(
+    if (fromHolder.votingDelegate != fromHolder.id) {
+      let votingDelegate = getOrInitDelegate(fromHolder.votingDelegate);
+      votingDelegate.delegatedInVotingPowerRaw = votingDelegate.delegatedInVotingPowerRaw.minus(
         event.params.value
       );
-      votingDelegate.stkAaveDelegatedInVotingPower = toDecimal(
-        votingDelegate.stkAaveDelegatedInVotingPowerRaw
+      votingDelegate.delegatedInVotingPower = toDecimal(
+        votingDelegate.delegatedInVotingPowerRaw
       );
       retotal(votingDelegate, event.block.timestamp, PowerType.Voting);
-      fromHolder.stkAaveDelegatedOutVotingPowerRaw = fromHolder.stkAaveDelegatedOutVotingPowerRaw.minus(
+      fromHolder.delegatedOutVotingPowerRaw = fromHolder.delegatedOutVotingPowerRaw.minus(
         event.params.value
       );
-      fromHolder.stkAaveDelegatedOutVotingPower = toDecimal(
-        fromHolder.stkAaveDelegatedOutVotingPowerRaw
+      fromHolder.delegatedOutVotingPower = toDecimal(
+        fromHolder.delegatedOutVotingPowerRaw
       );
     }
 
-    if (fromHolder.stkAavePropositionDelegate != fromHolder.id) {
-      let propositionDelegate = getOrInitDelegate(fromHolder.stkAavePropositionDelegate);
-      propositionDelegate.stkAaveDelegatedInPropositionPowerRaw = propositionDelegate.stkAaveDelegatedInPropositionPowerRaw.minus(
+    if (fromHolder.propositionDelegate != fromHolder.id) {
+      let propositionDelegate = getOrInitDelegate(fromHolder.propositionDelegate);
+      propositionDelegate.delegatedInPropositionPowerRaw = propositionDelegate.delegatedInPropositionPowerRaw.minus(
         event.params.value
       );
-      propositionDelegate.stkAaveDelegatedInPropositionPower = toDecimal(
-        propositionDelegate.stkAaveDelegatedInPropositionPowerRaw
+      propositionDelegate.delegatedInPropositionPower = toDecimal(
+        propositionDelegate.delegatedInPropositionPowerRaw
       );
       retotal(propositionDelegate, event.block.timestamp, PowerType.Proposition);
-      fromHolder.stkAaveDelegatedOutPropositionPowerRaw = fromHolder.stkAaveDelegatedOutPropositionPowerRaw.minus(
+      fromHolder.delegatedOutPropositionPowerRaw = fromHolder.delegatedOutPropositionPowerRaw.minus(
         event.params.value
       );
-      fromHolder.stkAaveDelegatedOutPropositionPower = toDecimal(
-        fromHolder.stkAaveDelegatedOutPropositionPowerRaw
+      fromHolder.delegatedOutPropositionPower = toDecimal(
+        fromHolder.delegatedOutPropositionPowerRaw
       );
     }
     retotal(fromHolder, event.block.timestamp);
@@ -103,40 +94,40 @@ export function handleTransfer(event: Transfer): void {
   // toHolder
   if (toAddress != ZERO_ADDRESS) {
     let toHolder = getOrInitDelegate(toAddress);
-    toHolder.stkAaveBalanceRaw = toHolder.stkAaveBalanceRaw.plus(event.params.value);
-    toHolder.stkAaveBalance = toDecimal(toHolder.stkAaveBalanceRaw);
+    toHolder.balanceRaw = toHolder.balanceRaw.plus(event.params.value);
+    toHolder.balance = toDecimal(toHolder.balanceRaw);
 
-    if (toHolder.stkAaveVotingDelegate != toHolder.id) {
-      let votingDelegate = getOrInitDelegate(toHolder.stkAaveVotingDelegate);
-      votingDelegate.stkAaveDelegatedInVotingPowerRaw = votingDelegate.stkAaveDelegatedInVotingPowerRaw.plus(
+    if (toHolder.votingDelegate != toHolder.id) {
+      let votingDelegate = getOrInitDelegate(toHolder.votingDelegate);
+      votingDelegate.delegatedInVotingPowerRaw = votingDelegate.delegatedInVotingPowerRaw.plus(
         event.params.value
       );
-      votingDelegate.stkAaveDelegatedInVotingPower = toDecimal(
-        votingDelegate.stkAaveDelegatedInVotingPowerRaw
+      votingDelegate.delegatedInVotingPower = toDecimal(
+        votingDelegate.delegatedInVotingPowerRaw
       );
       retotal(votingDelegate, event.block.timestamp, PowerType.Voting);
-      toHolder.stkAaveDelegatedOutVotingPowerRaw = toHolder.stkAaveDelegatedOutVotingPowerRaw.plus(
+      toHolder.delegatedOutVotingPowerRaw = toHolder.delegatedOutVotingPowerRaw.plus(
         event.params.value
       );
-      toHolder.stkAaveDelegatedOutVotingPower = toDecimal(
-        toHolder.stkAaveDelegatedOutVotingPowerRaw
+      toHolder.delegatedOutVotingPower = toDecimal(
+        toHolder.delegatedOutVotingPowerRaw
       );
     }
 
-    if (toHolder.stkAavePropositionDelegate != toHolder.id) {
-      let propositionDelegate = getOrInitDelegate(toHolder.stkAavePropositionDelegate);
-      propositionDelegate.stkAaveDelegatedInPropositionPowerRaw = propositionDelegate.stkAaveDelegatedInPropositionPowerRaw.plus(
+    if (toHolder.propositionDelegate != toHolder.id) {
+      let propositionDelegate = getOrInitDelegate(toHolder.propositionDelegate);
+      propositionDelegate.delegatedInPropositionPowerRaw = propositionDelegate.delegatedInPropositionPowerRaw.plus(
         event.params.value
       );
-      propositionDelegate.stkAaveDelegatedInPropositionPower = toDecimal(
-        propositionDelegate.stkAaveDelegatedInPropositionPowerRaw
+      propositionDelegate.delegatedInPropositionPower = toDecimal(
+        propositionDelegate.delegatedInPropositionPowerRaw
       );
       retotal(propositionDelegate, event.block.timestamp, PowerType.Proposition);
-      toHolder.stkAaveDelegatedOutPropositionPowerRaw = toHolder.stkAaveDelegatedOutPropositionPowerRaw.plus(
+      toHolder.delegatedOutPropositionPowerRaw = toHolder.delegatedOutPropositionPowerRaw.plus(
         event.params.value
       );
-      toHolder.stkAaveDelegatedOutPropositionPower = toDecimal(
-        toHolder.stkAaveDelegatedOutPropositionPowerRaw
+      toHolder.delegatedOutPropositionPower = toDecimal(
+        toHolder.delegatedOutPropositionPowerRaw
       );
     }
     retotal(toHolder, event.block.timestamp);
@@ -147,85 +138,84 @@ export function handleDelegateChanged(event: DelegateChanged): void {
   let delegator = getOrInitDelegate(event.params.delegator.toHexString());
   let newDelegate = getOrInitDelegate(event.params.delegatee.toHexString());
   let delegationId =
-    delegator.id + ':' + newDelegate.id + ':stkaave:' + event.transaction.hash.toHexString();
+    delegator.id + ':' + newDelegate.id + ':stkLyra:' + event.transaction.hash.toHexString();
   let delegation = new Delegation(delegationId);
   delegation.user = delegator.id;
   delegation.timestamp = event.block.timestamp.toI32();
   delegation.delegate = newDelegate.id;
-  delegation.asset = STKAAVE_CONSTANT;
-  delegation.amountRaw = delegator.aaveBalanceRaw;
-  delegation.amount = delegator.aaveBalance;
+  delegation.amountRaw = delegator.balanceRaw;
+  delegation.amount = delegator.balance;
 
   if (event.params.delegationType == VOTING_POWER) {
     delegation.powerType = VOTING_CONSTANT;
-    let previousDelegate = getOrInitDelegate(delegator.stkAaveVotingDelegate);
+    let previousDelegate = getOrInitDelegate(delegator.votingDelegate);
     // Subtract from previous delegate if delegator was not self-delegating
     if (previousDelegate.id != delegator.id) {
-      previousDelegate.stkAaveDelegatedInVotingPowerRaw = previousDelegate.stkAaveDelegatedInVotingPowerRaw.minus(
-        delegator.stkAaveBalanceRaw
+      previousDelegate.delegatedInVotingPowerRaw = previousDelegate.delegatedInVotingPowerRaw.minus(
+        delegator.balanceRaw
       );
-      previousDelegate.stkAaveDelegatedInVotingPower = toDecimal(
-        previousDelegate.stkAaveDelegatedInVotingPowerRaw
+      previousDelegate.delegatedInVotingPower = toDecimal(
+        previousDelegate.delegatedInVotingPowerRaw
       );
     }
 
     // Add to new delegate if delegator is not delegating to themself, and set delegatedOutPower accordingly
     if (newDelegate.id === delegator.id) {
-      delegator.stkAaveDelegatedOutVotingPowerRaw = BIGINT_ZERO;
-      delegator.stkAaveDelegatedOutVotingPower = toDecimal(
-        delegator.stkAaveDelegatedOutVotingPowerRaw
+      delegator.delegatedOutVotingPowerRaw = BIGINT_ZERO;
+      delegator.delegatedOutVotingPower = toDecimal(
+        delegator.delegatedOutVotingPowerRaw
       );
     } else {
-      delegator.stkAaveDelegatedOutVotingPowerRaw = delegator.stkAaveBalanceRaw;
-      delegator.stkAaveDelegatedOutVotingPower = toDecimal(
-        delegator.stkAaveDelegatedOutVotingPowerRaw
+      delegator.delegatedOutVotingPowerRaw = delegator.balanceRaw;
+      delegator.delegatedOutVotingPower = toDecimal(
+        delegator.delegatedOutVotingPowerRaw
       );
-      newDelegate.stkAaveDelegatedInVotingPowerRaw = newDelegate.stkAaveDelegatedInVotingPowerRaw.plus(
-        delegator.stkAaveBalanceRaw
+      newDelegate.delegatedInVotingPowerRaw = newDelegate.delegatedInVotingPowerRaw.plus(
+        delegator.balanceRaw
       );
-      newDelegate.stkAaveDelegatedInVotingPower = toDecimal(
-        newDelegate.stkAaveDelegatedInVotingPowerRaw
+      newDelegate.delegatedInVotingPower = toDecimal(
+        newDelegate.delegatedInVotingPowerRaw
       );
     }
 
     retotal(previousDelegate, event.block.timestamp, PowerType.Voting);
-    delegator.stkAaveVotingDelegate = newDelegate.id;
+    delegator.votingDelegate = newDelegate.id;
     retotal(delegator, event.block.timestamp, PowerType.Voting);
     retotal(newDelegate, event.block.timestamp, PowerType.Voting);
   } else {
     delegation.powerType = PROPOSITION_CONSTANT;
-    let previousDelegate = getOrInitDelegate(delegator.stkAavePropositionDelegate);
+    let previousDelegate = getOrInitDelegate(delegator.propositionDelegate);
     // Subtract from previous delegate if delegator was not self-delegating
     if (previousDelegate.id != delegator.id) {
-      previousDelegate.stkAaveDelegatedInPropositionPowerRaw = previousDelegate.stkAaveDelegatedInPropositionPowerRaw.minus(
-        delegator.stkAaveBalanceRaw
+      previousDelegate.delegatedInPropositionPowerRaw = previousDelegate.delegatedInPropositionPowerRaw.minus(
+        delegator.balanceRaw
       );
-      previousDelegate.stkAaveDelegatedInPropositionPower = toDecimal(
-        previousDelegate.stkAaveDelegatedInPropositionPowerRaw
+      previousDelegate.delegatedInPropositionPower = toDecimal(
+        previousDelegate.delegatedInPropositionPowerRaw
       );
     }
 
     // Add to new delegate if delegator is not delegating to themself, and set delegatedOutPower accordingly
     if (newDelegate.id === delegator.id) {
-      delegator.stkAaveDelegatedOutPropositionPowerRaw = BIGINT_ZERO;
-      delegator.stkAaveDelegatedOutPropositionPower = toDecimal(
-        delegator.stkAaveDelegatedOutPropositionPowerRaw
+      delegator.delegatedOutPropositionPowerRaw = BIGINT_ZERO;
+      delegator.delegatedOutPropositionPower = toDecimal(
+        delegator.delegatedOutPropositionPowerRaw
       );
     } else {
-      delegator.stkAaveDelegatedOutPropositionPowerRaw = delegator.stkAaveBalanceRaw;
-      delegator.stkAaveDelegatedOutPropositionPower = toDecimal(
-        delegator.stkAaveDelegatedOutPropositionPowerRaw
+      delegator.delegatedOutPropositionPowerRaw = delegator.balanceRaw;
+      delegator.delegatedOutPropositionPower = toDecimal(
+        delegator.delegatedOutPropositionPowerRaw
       );
-      newDelegate.stkAaveDelegatedInPropositionPowerRaw = newDelegate.stkAaveDelegatedInPropositionPowerRaw.plus(
-        delegator.stkAaveBalanceRaw
+      newDelegate.delegatedInPropositionPowerRaw = newDelegate.delegatedInPropositionPowerRaw.plus(
+        delegator.balanceRaw
       );
-      newDelegate.stkAaveDelegatedInPropositionPower = toDecimal(
-        newDelegate.stkAaveDelegatedInPropositionPowerRaw
+      newDelegate.delegatedInPropositionPower = toDecimal(
+        newDelegate.delegatedInPropositionPowerRaw
       );
     }
     delegation.save();
     retotal(previousDelegate, event.block.timestamp, PowerType.Proposition);
-    delegator.stkAavePropositionDelegate = newDelegate.id;
+    delegator.propositionDelegate = newDelegate.id;
     retotal(delegator, event.block.timestamp, PowerType.Proposition);
     retotal(newDelegate, event.block.timestamp, PowerType.Proposition);
   }

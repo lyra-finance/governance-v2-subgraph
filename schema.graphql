@@ -95,11 +95,6 @@ enum PowerType {
   Proposition
 }
 
-enum VotingAsset {
-  Aave
-  StkAave
-}
-
 type Delegation implements Action @entity {
   id: ID!
   user: Delegate!
@@ -108,29 +103,16 @@ type Delegation implements Action @entity {
   amountRaw: BigInt!
   amount: BigDecimal!
   delegate: Delegate!
-  asset: VotingAsset!
 }
 
-# Address which holds governance tokens (AAVE, stkAAVE) or has been delegated voting or proposition power from another address
+# Address which holds stkLyra or has been delegated voting or proposition power from another address
 type Delegate @entity {
   "Wallet address"
   id: ID!
 
-  "AAVE Balance"
-  aaveBalanceRaw: BigInt!
-  aaveBalance: BigDecimal!
-
-  "stkAAVE Balance"
-  stkAaveBalanceRaw: BigInt!
-  stkAaveBalance: BigDecimal!
-
-  "aaveTotalVotingPower + stkAaveTotalVotingPower"
-  totalVotingPowerRaw: BigInt!
-  totalVotingPower: BigDecimal!
-
-  "aaveDelegatedPropositionPower + stkAaveDelegatedPropositionPower"
-  totalPropositionPowerRaw: BigInt!
-  totalPropositionPower: BigDecimal!
+  "stkLyra Balance"
+  balanceRaw: BigInt!
+  balance: BigDecimal!
 
   "Votes which this user has participated in"
   votes: [Vote!]! @derivedFrom(field: "user")
@@ -142,50 +124,27 @@ type Delegate @entity {
   delegations: [Delegation!]! @derivedFrom(field: "user")
 
   "Delegate who will vote or propose on user's behalf"
-  aaveVotingDelegate: Delegate!
-  aavePropositionDelegate: Delegate!
+  votingDelegate: Delegate!
+  propositionDelegate: Delegate!
 
-  "aaveBalance + aaveDelegatedInVotingPower - aaveDelegatedOutVotingPower"
-  aaveTotalVotingPowerRaw: BigInt!
-  aaveTotalVotingPower: BigDecimal!
+  "Balance + DelegatedInVotingPower - DelegatedOutVotingPower"
+  totalVotingPowerRaw: BigInt!
+  totalVotingPower: BigDecimal!
 
-  aaveTotalPropositionPowerRaw: BigInt!
-  aaveTotalPropositionPower: BigDecimal!
+  totalPropositionPowerRaw: BigInt!
+  totalPropositionPower: BigDecimal!
 
-  aaveDelegatedInVotingPowerRaw: BigInt!
-  aaveDelegatedInVotingPower: BigDecimal!
+  delegatedInVotingPowerRaw: BigInt!
+  delegatedInVotingPower: BigDecimal!
 
-  aaveDelegatedOutVotingPowerRaw: BigInt!
-  aaveDelegatedOutVotingPower: BigDecimal!
+  delegatedOutVotingPowerRaw: BigInt!
+  delegatedOutVotingPower: BigDecimal!
 
-  aaveDelegatedInPropositionPowerRaw: BigInt!
-  aaveDelegatedInPropositionPower: BigDecimal!
+  delegatedInPropositionPowerRaw: BigInt!
+  delegatedInPropositionPower: BigDecimal!
 
-  aaveDelegatedOutPropositionPowerRaw: BigInt!
-  aaveDelegatedOutPropositionPower: BigDecimal!
-
-  "Delegate who will vote or propose on user's behalf"
-  stkAaveVotingDelegate: Delegate!
-  stkAavePropositionDelegate: Delegate!
-
-  "stkAaveBalance + stkAaveDelegatedInVotingPower - stkAaveDelegatedOutVotingPower"
-  stkAaveTotalVotingPowerRaw: BigInt!
-  stkAaveTotalVotingPower: BigDecimal!
-
-  stkAaveTotalPropositionPowerRaw: BigInt!
-  stkAaveTotalPropositionPower: BigDecimal!
-
-  stkAaveDelegatedInVotingPowerRaw: BigInt!
-  stkAaveDelegatedInVotingPower: BigDecimal!
-
-  stkAaveDelegatedOutVotingPowerRaw: BigInt!
-  stkAaveDelegatedOutVotingPower: BigDecimal!
-
-  stkAaveDelegatedInPropositionPowerRaw: BigInt!
-  stkAaveDelegatedInPropositionPower: BigDecimal!
-
-  stkAaveDelegatedOutPropositionPowerRaw: BigInt!
-  stkAaveDelegatedOutPropositionPower: BigDecimal!
+  delegatedOutPropositionPowerRaw: BigInt!
+  delegatedOutPropositionPower: BigDecimal!
 
   "Number of users represented for voting"
   usersVotingRepresentedAmount: Int!
