@@ -81,12 +81,6 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (discussions) {
     proposal.discussions = discussions.toString();
   }
-  if (aipNumber != null && aipNumber.kind == JSONValueKind.NUMBER) {
-    proposal.aipNumber = aipNumber.toBigInt();
-  }
-  if (shortDescription) {
-    proposal.shortDescription = shortDescription.toString();
-  }
   if (description) {
     proposal.description = description.toString();
   }
