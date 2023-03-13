@@ -34,36 +34,47 @@ export function handleProposalCreated(event: ProposalCreated): void {
   let data = ipfs.cat(hash);
   let proposalData = json.try_fromBytes(data as Bytes);
   let title: JSONValue | null = null;
-  let shortDescription: JSONValue | null = null;
+  let summary: JSONValue | null = null;
+  let motivation: JSONValue | null = null;
+  let specification: JSONValue | null = null;
+  let references: JSONValue | null = null;
   let description: JSONValue | null = null;
   let author: JSONValue | null = null;
-  let aipNumber: JSONValue | null = null;
   let discussions: JSONValue | null = null;
 
   if (proposalData.isOk && proposalData.value.kind == JSONValueKind.OBJECT) {
     let data = proposalData.value.toObject();
     title = data.get('title');
     description = data.get('description');
-    shortDescription = data.get('shortDescription');
+    summary = data.get('summary');
+    motivation = data.get('motivation');
+    specification = data.get('specification');
+    references = data.get('references');
+
     author = data.get('author');
     discussions = data.get('discussions');
-    aipNumber = data.get('aip');
   }
   let proposal = getOrInitProposal(event.params.id.toString());
   if (title) {
     proposal.title = title.toString();
+  }
+  if (summary) {
+    proposal.summary = summary.toString();
+  }
+  if (motivation) {
+    proposal.motivation = motivation.toString();
+  }
+  if (specification) {
+    proposal.specification = specification.toString();
+  }
+  if (references) {
+    proposal.references = references.toString();
   }
   if (author) {
     proposal.author = author.toString();
   }
   if (discussions) {
     proposal.discussions = discussions.toString();
-  }
-  if (!aipNumber.isNull() && aipNumber.kind == JSONValueKind.NUMBER) {
-    proposal.aipNumber = aipNumber.toBigInt();
-  }
-  if (shortDescription) {
-    proposal.shortDescription = shortDescription.toString();
   }
   if (description) {
     proposal.description = description.toString();
