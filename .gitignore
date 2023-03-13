@@ -8,3 +8,4 @@ subgraph.yaml
 generated/
 .editorconfig
 src/contracts/
+.env.local
