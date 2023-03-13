@@ -32,6 +32,10 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
   let data = ipfs.cat(hash);
+  if (data === null) {
+    log.warning('Missing proposal data for {}', [hash]);
+    return;
+  }
   let proposalData = json.try_fromBytes(data as Bytes);
   let title: JSONValue | null = null;
   let summary: JSONValue | null = null;
@@ -55,6 +59,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
     discussions = data.get('discussions');
   }
   let proposal = getOrInitProposal(event.params.id.toString());
+
   if (title) {
     proposal.title = title.toString();
   }
@@ -76,6 +81,12 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (discussions) {
     proposal.discussions = discussions.toString();
   }
+  if (aipNumber != null && aipNumber.kind == JSONValueKind.NUMBER) {
+    proposal.aipNumber = aipNumber.toBigInt();
+  }
+  if (shortDescription) {
+    proposal.shortDescription = shortDescription.toString();
+  }
   if (description) {
     proposal.description = description.toString();
   }
@@ -92,7 +103,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
   creator.save();
   proposal.user = creator.id;
   proposal.executor = event.params.executor.toHexString();
-  proposal.targets = event.params.targets as Bytes[];
+  proposal.targets = changetype<Bytes[]>(event.params.targets);
   proposal.values = event.params.values;
   proposal.signatures = event.params.signatures;
   proposal.calldatas = event.params.calldatas;
@@ -175,7 +186,10 @@ export function handleVoteEmitted(event: VoteEmitted): void {
   voterDel.numVotes = voterDel.numVotes + 1;
   voterDel.save();
   let id = event.params.voter.toHexString() + ':' + event.params.id.toString();
-  let vote = Vote.load(id) || new Vote(id);
+  let vote = Vote.load(id);
+  if (vote == null) {
+    vote = new Vote(id);
+  }
   vote.proposal = event.params.id.toString();
   vote.support = event.params.support;
   vote.user = voterDel.id;
@@ -192,7 +206,11 @@ export function handleExecutorAuthorized(event: ExecutorAuthorized): void {
     executor = new Executor(event.params.executor.toHexString());
     let executorContract = IExecutor.bind(event.params.executor);
     executor.authorized = true;
-    executor.propositionThreshold = executorContract.PROPOSITION_THRESHOLD();
+    let propositionThreshold = executorContract.try_PROPOSITION_THRESHOLD();
+    if (propositionThreshold.reverted) {
+      return;
+    }
+    executor.propositionThreshold = propositionThreshold.value;
     executor.votingDuration = executorContract.VOTING_DURATION();
     executor.voteDifferential = executorContract.VOTE_DIFFERENTIAL();
     executor.gracePeriod = executorContract.GRACE_PERIOD();

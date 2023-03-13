@@ -1,8 +1,7 @@
 #!/bin/bash
-network=$1
-type=$2
-version=$3
-name=$4
+network='goerli'
+version=$1
+name=$2
 GRAPH=${GRAPH:-graph}
 
 graphNetwork=$network
@@ -19,4 +18,4 @@ elif [ $network = 'goerli-arbi' ]; then
   graphNetwork='arbitrum-goerli'
 fi
 
-NETWORK=$graphNetwork $GRAPH deploy $name --version-label $version --node https://app.satsuma.xyz/api/subgraphs/deploy --deploy-key $SATSUMA_KEY --network $network --type $type subgraph.js
+NETWORK=$graphNetwork $GRAPH deploy $name --version-label $version --node https://app.satsuma.xyz/api/subgraphs/deploy --deploy-key $SATSUMA_KEY
