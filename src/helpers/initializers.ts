@@ -71,13 +71,15 @@ export function getOrInitProposal(proposalId: string): Proposal {
     proposal.lastUpdateBlock = zeroBI();
     proposal.title = NA;
     proposal.description = NA;
-    proposal.shortDescription = NA;
+    proposal.summary = NA;
+    proposal.motivation = NA;
+    proposal.specification = NA;
+    proposal.references = NA;
     proposal.govContract = zeroAddress();
     proposal.totalPropositionSupply = zeroBI();
     proposal.totalVotingSupply = zeroBI();
     proposal.createdBlockNumber = zeroBI();
     proposal.totalCurrentVoters = 0;
-    proposal.aipNumber = zeroBI();
     proposal.author = NA;
     proposal.discussions = NA;
     proposal.save();

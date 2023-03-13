@@ -66,13 +66,15 @@ type Proposal implements Action @entity {
   lastUpdateBlock: BigInt!
   title: String!
   description: String!
-  shortDescription: String!
+  summary: String!
+  motivation: String!
+  specification: String!
+  references: String!
   govContract: Bytes!
   totalPropositionSupply: BigInt!
   totalVotingSupply: BigInt!
   createdBlockNumber: BigInt!
   totalCurrentVoters: Int!
-  aipNumber: BigInt!
   author: String!
   discussions: String!
 }
