@@ -32,11 +32,48 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
   let data = ipfs.cat(hash);
-  // if (data === null) {
-  //   log.warning('Missing proposal data for {}', [hash]);
-  //   return;
-  // }
-  let proposalData = data ? json.try_fromBytes(data as Bytes) : { isOk: false, value: { kind: JSONValueKind.NULL, toObject: null } };
+  if (data === null) {
+    log.warning('Missing proposal data for {}', [hash]);
+    let proposal = getOrInitProposal(event.params.id.toString());
+    // TODO: @dillon - delete this later
+    proposal.title = '';
+    proposal.summary = '';
+    proposal.motivation = '';
+    proposal.specification = '';
+    proposal.references = '';
+    proposal.author = '';
+    proposal.discussions = '';
+    proposal.description = '';
+    let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
+    proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
+      event.params.startBlock
+    );
+    proposal.totalVotingSupply = govStrategyInst.getTotalVotingSupplyAt(event.params.startBlock);
+    proposal.govContract = event.address;
+    let creator = getOrInitDelegate(event.params.creator.toHexString());
+    creator.numProposals = creator.numProposals + 1;
+    creator.save();
+    proposal.user = creator.id;
+    proposal.executor = event.params.executor.toHexString();
+    proposal.targets = changetype<Bytes[]>(event.params.targets);
+    proposal.values = event.params.values;
+    proposal.signatures = event.params.signatures;
+    proposal.calldatas = event.params.calldatas;
+    proposal.withDelegatecalls = event.params.withDelegatecalls;
+    proposal.startBlock = event.params.startBlock;
+    proposal.endBlock = event.params.endBlock;
+    proposal.state = event.block.number >= proposal.startBlock ? STATUS_ACTIVE : STATUS_PENDING;
+    proposal.governanceStrategy = event.params.strategy;
+    proposal.ipfsHash = hash;
+    proposal.lastUpdateBlock = event.block.number;
+    proposal.timestamp = event.block.timestamp.toI32();
+    proposal.createdBlockNumber = event.block.number;
+    proposal.lastUpdateTimestamp = event.block.timestamp.toI32();
+    proposal.save();
+    return;
+  }
+
+  let proposalData = json.try_fromBytes(data as Bytes);
   let title: JSONValue | null = null;
   let summary: JSONValue | null = null;
   let motivation: JSONValue | null = null;
