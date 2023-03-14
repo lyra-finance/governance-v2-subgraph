@@ -47,7 +47,7 @@ dataSources:
     network: goerli
     source:
       abi: stkLyra
-      address: "0xEA5e086772Ee6D9E6663c2bb08f892081009138a"
+      address: "0x517677697563E9D569913f0e8805097e8081137D"
       startBlock: 8616460
     mapping:
       kind: ethereum/events

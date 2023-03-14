@@ -32,10 +32,10 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
   let data = ipfs.cat(hash);
-  if (data === null) {
-    log.warning('Missing proposal data for {}', [hash]);
-    return;
-  }
+  // if (data === null) {
+  //   log.warning('Missing proposal data for {}', [hash]);
+  //   return;
+  // }
   let proposalData = json.try_fromBytes(data as Bytes);
   let title: JSONValue | null = null;
   let summary: JSONValue | null = null;
@@ -54,7 +54,6 @@ export function handleProposalCreated(event: ProposalCreated): void {
     motivation = data.get('motivation');
     specification = data.get('specification');
     references = data.get('references');
-
     author = data.get('author');
     discussions = data.get('discussions');
   }
