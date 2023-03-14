@@ -1,0 +1,66 @@
+specVersion: 0.0.2
+description: Lyra governance V2 subgraph
+repository: https://github.com/lyra-finance/governance-v2-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LyraGovernanceV2
+    network: goerli
+    source:
+      abi: LyraGovernanceV2
+      address: '0x840c2Ceaa214287889FA7c8ef174EAcE85548E52'
+      startBlock: 8574956
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Proposal
+        - Vote
+        - Executor
+      abis:
+        - name: LyraGovernanceV2
+          file: ./externals/Governance.json
+        - name: IExecutor
+          file: ./externals/Executor.json
+        - name: GovernanceStrategy
+          file: ./externals/GovernanceStrategy.json
+      eventHandlers:
+        - event: ProposalCreated(uint256,indexed address,indexed address,address[],uint256[],string[],bytes[],bool[],uint256,uint256,address,bytes32)
+          handler: handleProposalCreated
+        - event: ProposalCanceled(uint256)
+          handler: handleProposalCanceled
+        - event: ProposalQueued(uint256,uint256,indexed address)
+          handler: handleProposalQueued
+        - event: ProposalExecuted(uint256,indexed address)
+          handler: handleProposalExecuted
+        - event: VoteEmitted(uint256,indexed address,bool,uint256)
+          handler: handleVoteEmitted
+        - event: ExecutorAuthorized(address)
+          handler: handleExecutorAuthorized
+        - event: ExecutorUnauthorized(address)
+          handler: handleExecutorUnauthorized
+      file: ./src/mapping/governance.ts
+  - kind: ethereum/contract
+    name: stkLyra
+    network: goerli
+    source:
+      abi: stkLyra
+      address: "0xEA5e086772Ee6D9E6663c2bb08f892081009138a"
+      startBlock: 8616460
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - Delegate
+      abis:
+        - name: stkLyra
+          file: ./externals/stkLyra.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: DelegateChanged(indexed address,indexed address,uint8)
+          handler: handleDelegateChanged
+      file: ./src/mapping/stake.ts
