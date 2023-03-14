@@ -36,7 +36,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
   //   log.warning('Missing proposal data for {}', [hash]);
   //   return;
   // }
-  let proposalData = json.try_fromBytes(data as Bytes);
+  let proposalData = data ? json.try_fromBytes(data as Bytes) : { isOk: false, value: { kind: JSONValueKind.NULL, toObject: null } };
   let title: JSONValue | null = null;
   let summary: JSONValue | null = null;
   let motivation: JSONValue | null = null;
