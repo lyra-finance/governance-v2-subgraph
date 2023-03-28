@@ -9,7 +9,7 @@ dataSources:
     network: mainnet
     source:
       abi: LyraGovernanceV2
-      address: '0xEDeAa8CefC0D182E61A700ACE093955c288A22D5'
+      address: '0xe8642cc1249F08756e70Bb8eb4BE0e6c09254fed'
       startBlock: 16921651
     mapping:
       kind: ethereum/events
