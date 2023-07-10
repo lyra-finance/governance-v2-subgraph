@@ -76,6 +76,7 @@ export function getOrInitProposal(proposalId: string): Proposal {
     proposal.specification = NA;
     proposal.rationale = NA;
     proposal.testCases = NA;
+    proposal.copyrightWaiver = NA;
     proposal.govContract = zeroAddress();
     proposal.totalPropositionSupply = zeroBI();
     proposal.totalVotingSupply = zeroBI();

@@ -71,6 +71,7 @@ type Proposal implements Action @entity {
   specification: String!
   rationale: String!
   testCases: String!
+  copyrightWaiver: String!
   govContract: Bytes!
   totalPropositionSupply: BigInt!
   totalVotingSupply: BigInt!

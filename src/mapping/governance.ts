@@ -46,6 +46,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
     proposal.specification = '';
     proposal.rationale = '';
     proposal.testCases = '';
+    proposal.copyrightWaiver = '';
     proposal.txHash = txHash;
     let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
     proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
@@ -84,6 +85,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
   let specification: JSONValue | null = null;
   let rationale: JSONValue | null = null;
   let testCases: JSONValue | null = null;
+  let copyrightWaiver: JSONValue | null = null;
   let description: JSONValue | null = null;
   let author: JSONValue | null = null;
   let discussions: JSONValue | null = null;
@@ -95,6 +97,9 @@ export function handleProposalCreated(event: ProposalCreated): void {
     simpleSummary = data.get('simpleSummary');
     motivation = data.get('motivation');
     specification = data.get('specification');
+    rationale = data.get('rationale');
+    testCases = data.get('testCases');
+    copyrightWaiver = data.get('copyrightWaiver');
     author = data.get('author');
     discussions = data.get('discussions');
   }
