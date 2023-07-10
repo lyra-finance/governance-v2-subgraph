@@ -78,6 +78,7 @@ type Proposal implements Action @entity {
   totalCurrentVoters: Int!
   author: String!
   discussions: String!
+  txHash: String!
 }
 
 type Vote implements Action @entity {

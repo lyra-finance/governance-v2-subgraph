@@ -31,6 +31,7 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
+  let txHash = String(event.transaction.hash)
   let data = ipfs.cat(hash);
   if (data === null) {
     log.warning('Missing proposal data for {}', [hash]);
@@ -45,6 +46,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
     proposal.specification = '';
     proposal.rationale = '';
     proposal.testCases = '';
+    proposal.txHash = txHash;
     let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
     proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
       event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number

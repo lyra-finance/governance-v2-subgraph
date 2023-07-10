@@ -83,6 +83,7 @@ export function getOrInitProposal(proposalId: string): Proposal {
     proposal.totalCurrentVoters = 0;
     proposal.author = NA;
     proposal.discussions = NA;
+    proposal.txHash = NA;
     proposal.save();
   }
 
