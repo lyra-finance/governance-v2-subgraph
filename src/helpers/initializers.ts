@@ -70,11 +70,13 @@ export function getOrInitProposal(proposalId: string): Proposal {
     proposal.lastUpdateTimestamp = zeroBI().toI32();
     proposal.lastUpdateBlock = zeroBI();
     proposal.title = NA;
-    proposal.description = NA;
-    proposal.summary = NA;
+    proposal.simpleSummary = NA;
+    proposal.abstract = NA;
     proposal.motivation = NA;
     proposal.specification = NA;
-    proposal.references = NA;
+    proposal.rationale = NA;
+    proposal.testCases = NA;
+    proposal.copyrightWaiver = NA;
     proposal.govContract = zeroAddress();
     proposal.totalPropositionSupply = zeroBI();
     proposal.totalVotingSupply = zeroBI();
@@ -82,6 +84,7 @@ export function getOrInitProposal(proposalId: string): Proposal {
     proposal.totalCurrentVoters = 0;
     proposal.author = NA;
     proposal.discussions = NA;
+    proposal.txHash = NA;
     proposal.save();
   }
 

@@ -65,11 +65,13 @@ type Proposal implements Action @entity {
   lastUpdateTimestamp: Int!
   lastUpdateBlock: BigInt!
   title: String!
-  description: String!
-  summary: String!
+  simpleSummary: String!
+  abstract: String!
   motivation: String!
   specification: String!
-  references: String!
+  rationale: String!
+  testCases: String!
+  copyrightWaiver: String!
   govContract: Bytes!
   totalPropositionSupply: BigInt!
   totalVotingSupply: BigInt!
@@ -77,6 +79,7 @@ type Proposal implements Action @entity {
   totalCurrentVoters: Int!
   author: String!
   discussions: String!
+  txHash: String!
 }
 
 type Vote implements Action @entity {
