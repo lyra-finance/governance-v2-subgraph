@@ -31,14 +31,13 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
-  let txHash = String(event.transaction.hash)
+  let txHash = event.transaction.hash.toString();
   let data = ipfs.cat(hash);
   if (data === null) {
     log.warning('Missing proposal data for {}', [hash]);
     let proposal = getOrInitProposal(event.params.id.toString());
     proposal.author = '';
     proposal.discussions = '';
-    proposal.description = '';
     proposal.title = '';
     proposal.simpleSummary = '';
     proposal.abstract = '';
@@ -131,9 +130,6 @@ export function handleProposalCreated(event: ProposalCreated): void {
   }
   if (discussions) {
     proposal.discussions = discussions.toString();
-  }
-  if (description) {
-    proposal.description = description.toString();
   }
 
   let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
