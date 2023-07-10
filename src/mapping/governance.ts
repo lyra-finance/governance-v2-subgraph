@@ -35,15 +35,16 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (data === null) {
     log.warning('Missing proposal data for {}', [hash]);
     let proposal = getOrInitProposal(event.params.id.toString());
-    // TODO: @dillon - delete this later
-    proposal.title = '';
-    proposal.summary = '';
-    proposal.motivation = '';
-    proposal.specification = '';
-    proposal.references = '';
     proposal.author = '';
     proposal.discussions = '';
     proposal.description = '';
+    proposal.title = '';
+    proposal.simpleSummary = '';
+    proposal.abstract = '';
+    proposal.motivation = '';
+    proposal.specification = '';
+    proposal.rationale = '';
+    proposal.testCases = '';
     let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
     proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
       event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number
@@ -75,10 +76,12 @@ export function handleProposalCreated(event: ProposalCreated): void {
 
   let proposalData = json.try_fromBytes(data as Bytes);
   let title: JSONValue | null = null;
-  let summary: JSONValue | null = null;
+  let simpleSummary: JSONValue | null = null;
+  let abstract: JSONValue | null = null;
   let motivation: JSONValue | null = null;
   let specification: JSONValue | null = null;
-  let references: JSONValue | null = null;
+  let rationale: JSONValue | null = null;
+  let testCases: JSONValue | null = null;
   let description: JSONValue | null = null;
   let author: JSONValue | null = null;
   let discussions: JSONValue | null = null;
@@ -87,10 +90,9 @@ export function handleProposalCreated(event: ProposalCreated): void {
     let data = proposalData.value.toObject();
     title = data.get('title');
     description = data.get('description');
-    summary = data.get('summary');
+    simpleSummary = data.get('simpleSummary');
     motivation = data.get('motivation');
     specification = data.get('specification');
-    references = data.get('references');
     author = data.get('author');
     discussions = data.get('discussions');
   }
@@ -99,8 +101,11 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (title) {
     proposal.title = title.toString();
   }
-  if (summary) {
-    proposal.summary = summary.toString();
+  if (simpleSummary) {
+    proposal.simpleSummary = simpleSummary.toString();
+  }
+  if (abstract) {
+    proposal.abstract = abstract.toString();
   }
   if (motivation) {
     proposal.motivation = motivation.toString();
@@ -108,8 +113,11 @@ export function handleProposalCreated(event: ProposalCreated): void {
   if (specification) {
     proposal.specification = specification.toString();
   }
-  if (references) {
-    proposal.references = references.toString();
+  if (rationale) {
+    proposal.rationale = rationale.toString();
+  }
+  if (testCases) {
+    proposal.testCases = testCases.toString();
   }
   if (author) {
     proposal.author = author.toString();

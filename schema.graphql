@@ -65,11 +65,12 @@ type Proposal implements Action @entity {
   lastUpdateTimestamp: Int!
   lastUpdateBlock: BigInt!
   title: String!
-  description: String!
-  summary: String!
+  simpleSummary: String!
+  abstract: String!
   motivation: String!
   specification: String!
-  references: String!
+  rationale: String!
+  testCases: String!
   govContract: Bytes!
   totalPropositionSupply: BigInt!
   totalVotingSupply: BigInt!
