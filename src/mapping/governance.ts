@@ -31,7 +31,7 @@ function getProposal(proposalId: string, fn: string): Proposal | null {
 
 export function handleProposalCreated(event: ProposalCreated): void {
   let hash = Bytes.fromHexString('1220' + event.params.ipfsHash.toHexString().slice(2)).toBase58();
-  let txHash = event.transaction.hash.toString();
+  let txHash = event.transaction.hash.toHexString();
   let data = ipfs.cat(hash);
   if (data === null) {
     log.warning('Missing proposal data for {}', [hash]);
@@ -158,6 +158,7 @@ export function handleProposalCreated(event: ProposalCreated): void {
   proposal.timestamp = event.block.timestamp.toI32();
   proposal.createdBlockNumber = event.block.number;
   proposal.lastUpdateTimestamp = event.block.timestamp.toI32();
+  proposal.txHash = txHash;
   proposal.save();
 }
 
