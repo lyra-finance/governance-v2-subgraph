@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: LyraGovernanceV2
-    network: goerli
+    network: mainnet
     source:
       abi: LyraGovernanceV2
-      address: '0xD5BB4Cd3dbD5164eE5575FBB23542b120a52BdB8'
-      startBlock: 8574956
+      address: '0xe8642cc1249F08756e70Bb8eb4BE0e6c09254fed'
+      startBlock: 16921651
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -44,11 +44,11 @@ dataSources:
       file: ./src/mapping/governance.ts
   - kind: ethereum/contract
     name: stkLyra
-    network: goerli
+    network: mainnet
     source:
       abi: stkLyra
-      address: "0xd7947f2651304DA4cC360b9E81b453f26FAaD4B1"
-      startBlock: 8616460
+      address: "0xCb9f85730f57732fc899fb158164b9Ed60c77D49"
+      startBlock: 16408825
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5

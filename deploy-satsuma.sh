@@ -1,5 +1,5 @@
 #!/bin/bash
-network='goerli'
+network='mainnet'
 version=$1
 name=$2
 GRAPH=${GRAPH:-graph}

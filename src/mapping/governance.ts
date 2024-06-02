@@ -46,9 +46,9 @@ export function handleProposalCreated(event: ProposalCreated): void {
     proposal.description = '';
     let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
     proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
-      event.params.startBlock
+      event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number
     );
-    proposal.totalVotingSupply = govStrategyInst.getTotalVotingSupplyAt(event.params.startBlock);
+    proposal.totalVotingSupply = govStrategyInst.getTotalVotingSupplyAt(event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number);
     proposal.govContract = event.address;
     let creator = getOrInitDelegate(event.params.creator.toHexString());
     creator.numProposals = creator.numProposals + 1;
@@ -123,9 +123,9 @@ export function handleProposalCreated(event: ProposalCreated): void {
 
   let govStrategyInst = GovernanceStrategy.bind(event.params.strategy);
   proposal.totalPropositionSupply = govStrategyInst.getTotalPropositionSupplyAt(
-    event.params.startBlock
+    event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number
   );
-  proposal.totalVotingSupply = govStrategyInst.getTotalVotingSupplyAt(event.params.startBlock);
+  proposal.totalVotingSupply = govStrategyInst.getTotalVotingSupplyAt(event.block.number >= proposal.startBlock ? proposal.startBlock : event.block.number);
 
   proposal.govContract = event.address;
   let creator = getOrInitDelegate(event.params.creator.toHexString());
